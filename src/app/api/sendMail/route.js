@@ -78,6 +78,10 @@ export async function POST(req) {
 
     await transporter.sendMail(mailOptions);
 
+    const logMessage = `Email sent to: ${email} at ${new Date().toLocaleString()}\n`;
+    const logFilePath = path.join(process.cwd(), "email-log.txt");
+    fs.appendFileSync(logFilePath, logMessage, "utf8");
+
     return new Response(
       JSON.stringify({ message: "Email sent successfully." }),
       {
