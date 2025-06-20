@@ -1,12 +1,15 @@
 import nodemailer from "nodemailer";
+import dbConnect from "@/lib/dbConnect";
+import EmailLog from "@/model/logModel";
 import fs from "fs";
 import path from "path";
 
 export async function POST(req) {
   try {
     const { email, subject } = await req.json();
-    console.log("Sending to:", email);
-
+    // console.log("Sending to:", email);
+    const mainSubject =
+      subject || `Application for Full Stack Developer hiring`;
     const resumePath = path.join(
       process.cwd(),
       "public",
@@ -25,7 +28,7 @@ export async function POST(req) {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: subject || `Application for Full Stack Developer hiring`,
+      subject: mainSubject,
       html: `
   <div style="font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #333;">
     <p>Dear Hiring Manager,</p>
@@ -66,7 +69,7 @@ export async function POST(req) {
       <a href="https://krunalvaishnav.vercel.app" target="_blank">krunalvaishnav.vercel.app</a>
     </p>
   </div>
-`,
+      `,
       attachments: [
         {
           filename: "Krunal_Vaishnav_Resume.pdf",
@@ -78,9 +81,15 @@ export async function POST(req) {
 
     await transporter.sendMail(mailOptions);
 
-    const logMessage = `Email sent to: ${email} at ${new Date().toLocaleString()}\n`;
-    const logFilePath = path.join(process.cwd(), "email-log.txt");
-    fs.appendFileSync(logFilePath, logMessage, "utf8");
+    await dbConnect();
+    await EmailLog.create({
+      subject: mainSubject,
+      email,
+      sentAt: new Date(),
+    });
+    // const logMessage = `Email sent to: ${email} at ${new Date().toLocaleString()}\n`;
+    // const logFilePath = path.join(process.cwd(), "email-log.txt");
+    // fs.appendFileSync(logFilePath, logMessage, "utf8");
 
     return new Response(
       JSON.stringify({ message: "Email sent successfully." }),

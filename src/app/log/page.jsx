@@ -7,24 +7,17 @@ export default function Log() {
 
   useEffect(() => {
     fetch("/api/getLog")
-      .then((res) => res.text())
+      .then((res) => res.json())
       .then((data) => {
-        const lines = data
-          .split("\n")
-          .filter(Boolean)
-          .map((line) => {
-            const emailMatch = line.match(/Email sent to:\s(.+?)\sat/i);
-            const timeMatch = line.match(/at\s(.+)$/i);
-            if (emailMatch && timeMatch) {
-              return {
-                email: emailMatch[1],
-                datetime: timeMatch[1],
-              };
-            }
-            return null;
-          })
-          .filter(Boolean);
-        setLogs(lines);
+        const formattedLogs = data.logs.map((log) => ({
+          subject: log.subject,
+          email: log.email,
+          datetime: new Date(log.sentAt).toLocaleString("en-IN", {
+            dateStyle: "short",
+            timeStyle: "short",
+          }),
+        }));
+        setLogs(formattedLogs);
       })
       .catch((err) => console.error("Error fetching logs:", err));
   }, []);
@@ -49,41 +42,88 @@ export default function Log() {
             {logs.length === 0 ? (
               <p className="text-center text-light small">No logs available.</p>
             ) : (
-              <div className="table-responsive">
-                <table className="table table-dark table-bordered table-striped small">
-                  <thead className="thead-light">
-                    <tr>
-                      <th style={{ width: "5%" }}>#</th>
-                      <th style={{ width: "55%" }}>Email</th>
-                      <th style={{ width: "40%" }}>Date & Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {logs.map((log, index) => (
-                      <tr key={index} className="align-middle">
-                        <td>{index + 1}</td>
-                        <td>
-                          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
-                            <span className="text-break">{log.email}</span>
-                            <button
-                              className={`btn btn-sm py-0 px-2 ${
-                                copiedIndex === index
-                                  ? "btn-outline-success"
-                                  : "btn-outline-info"
-                              }`}
-                              style={{ fontSize: "0.75rem" }}
-                              onClick={() => handleCopy(log.email, index)}
-                            >
-                              {copiedIndex === index ? "Copied ✅" : "Copy 📋"}
-                            </button>
-                          </div>
-                        </td>
-                        <td className="text-break">{log.datetime}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {/* Desktop Table View */}
+                <div className="d-none d-md-block">
+                  <div className="table-responsive">
+                    <table className="table table-dark table-bordered table-striped small mb-0">
+                      <thead className="thead-light">
+                        <tr>
+                          <th style={{ width: "5%" }}>#</th>
+                          <th style={{ width: "10%" }}>Subject</th>
+                          <th style={{ width: "45%" }}>Email</th>
+                          <th style={{ width: "40%" }}>Date & Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {logs.map((log, index) => (
+                          <tr key={index} className="align-middle">
+                            <td>{index + 1}</td>
+                            <td>{log.subject}</td>
+                            <td>
+                              <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                                <span className="text-break">{log.email}</span>
+                                <button
+                                  className={`btn btn-sm py-0 px-2 ${
+                                    copiedIndex === index
+                                      ? "btn-outline-success"
+                                      : "btn-outline-info"
+                                  }`}
+                                  style={{ fontSize: "0.75rem" }}
+                                  onClick={() => handleCopy(log.email, index)}
+                                >
+                                  {copiedIndex === index
+                                    ? "Copied ✅"
+                                    : "Copy 📋"}
+                                </button>
+                              </div>
+                            </td>
+                            <td className="text-break">{log.datetime}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Mobile Card View */}
+                <div
+                  className="d-block d-md-none"
+                  style={{ fontSize: "0.80rem" }}
+                >
+                  {logs.map((log, index) => (
+                    <div
+                      key={index}
+                      className="card bg-dark text-white mb-2 p-2 position-relative"
+                    >
+                      <button
+                        className={`btn btn-sm py-0 px-2 position-absolute top-0 end-0 m-2 ${
+                          copiedIndex === index
+                            ? "btn-outline-success"
+                            : "btn-outline-info"
+                        }`}
+                        onClick={() => handleCopy(log.email, index)}
+                        style={{ fontSize: "0.75rem", zIndex: 1 }}
+                      >
+                        {copiedIndex === index ? "Copied ✅" : "Copy 📋"}
+                      </button>
+
+                      <div>
+                        <strong>#{index + 1}</strong>
+                      </div>
+                      <div>
+                        <strong>Subject:</strong> {log.subject}
+                      </div>
+                      <div className="text-break mt-1">
+                        <strong>Email:</strong> {log.email}
+                      </div>
+                      <div className="mt-1">
+                        <strong>Date:</strong> {log.datetime}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
