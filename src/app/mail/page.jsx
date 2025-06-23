@@ -1,9 +1,13 @@
 "use client";
 import { useState } from "react";
+import { FiLogOut, FiArrowUpRight } from "react-icons/fi";
+import { CgAdd } from "react-icons/cg";
+import { useRouter } from "next/navigation";
 
 export default function Contact() {
   const [form, setForm] = useState({ email: "", subject: "" });
   const [status, setStatus] = useState("");
+  const router = useRouter();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -29,11 +33,28 @@ export default function Contact() {
     setTimeout(() => setStatus(""), 3000);
   };
 
+  const logout = async () => {
+    await fetch("/api/logout");
+    window.location.href = "/login";
+  };
+  const log = async () => {
+    router.push("/log");
+  };
+
   return (
     <div
-      className="d-flex justify-content-center align-items-center min-vh-100"
+      className="d-flex justify-content-center align-items-center min-vh-100 position-relative"
       style={{ backgroundColor: "#000" }}
     >
+      <button
+        onClick={logout}
+        className="btn btn-outline-none text-white position-absolute"
+        style={{ top: "-10px", right: "0px", zIndex: 10 }}
+      >
+        <FiLogOut className="me-1" />
+      </button>
+
+      {/* Main Form Card */}
       <div
         className="p-4 rounded w-100 text-light"
         style={{
@@ -88,6 +109,13 @@ export default function Contact() {
           )}
         </form>
       </div>
+      <button
+        onClick={log}
+        className="btn btn-outline-none text-white position-absolute d-flex align-items-center gap-1"
+        style={{ bottom: "0px", right: "0px", zIndex: 10 }}
+      >
+        <CgAdd />
+      </button>
     </div>
   );
 }

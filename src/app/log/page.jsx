@@ -1,9 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import { FiLogOut } from "react-icons/fi";
+import { CgAdd } from "react-icons/cg";
+
+import { useRouter } from "next/navigation";
 
 export default function Log() {
   const [logs, setLogs] = useState([]);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/getLog")
@@ -30,14 +35,35 @@ export default function Log() {
     }, 2000);
   };
 
+  const logout = async () => {
+    await fetch("/api/logout");
+    window.location.href = "/login";
+  };
+  const log = async () => {
+    router.push("/mail");
+  };
+
   return (
-    <div className="min-vh-100 bg-dark text-white py-4 px-2">
+    <div className="min-vh-100 bg-dark text-white py-4 px-2 position-relative">
+      <button
+        onClick={logout}
+        className="btn btn-outline-none text-white position-absolute"
+        style={{ top: "-10px", right: "0px", zIndex: 10 }}
+      >
+        <FiLogOut className="me-1" />
+      </button>
+      <button
+        onClick={log}
+        className="btn btn-outline-none text-white position-absolute d-flex align-items-center gap-1"
+        style={{ bottom: "0px", right: "0px", zIndex: 10 }}
+      >
+        <CgAdd />
+      </button>
+
       <div className="container-fluid">
         <div className="card bg-secondary shadow-lg">
           <div className="card-body p-3">
-            <h5 className="card-title text-center text-info mb-3">
-              📧 Logs
-            </h5>
+            <h5 className="card-title text-center text-info mb-3">📧 Logs</h5>
 
             {logs.length === 0 ? (
               <p className="text-center text-light small">No logs available.</p>
