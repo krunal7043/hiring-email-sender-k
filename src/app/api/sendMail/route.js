@@ -40,7 +40,7 @@ export async function POST(req) {
 <p> My expertise in both frontend and backend development, along with strong Git version control skills, enables me to deliver seamless applications from concept to deployment.</p>
 
     <p>
-      Currently, I am undergoing a 6-month training program, of which I have successfully completed 5 months, gaining practical experience in full-stack development.
+      Currently, I am undergoing a 6-month training program, of which I have successfully completed 5.7 months, gaining practical experience in full-stack development.
     </p>
 
     <p>
