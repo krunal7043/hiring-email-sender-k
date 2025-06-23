@@ -36,7 +36,7 @@ export default function Log() {
         <div className="card bg-secondary shadow-lg">
           <div className="card-body p-3">
             <h5 className="card-title text-center text-info mb-3">
-              📧 Sent Email Logs
+              📧 Logs
             </h5>
 
             {logs.length === 0 ? (
