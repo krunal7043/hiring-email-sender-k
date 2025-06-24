@@ -11,7 +11,7 @@
         expiresIn: "1h",
         });
 
-        const response = NextResponse.json({ success: true });
+        const response = NextResponse.json({ success: true ,token});
 
         response.cookies.set({
         name: "token",

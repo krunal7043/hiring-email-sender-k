@@ -3,11 +3,32 @@ import dbConnect from "@/lib/dbConnect";
 import EmailLog from "@/model/logModel";
 import fs from "fs";
 import path from "path";
+import { jwtVerify } from "jose";
 
 export async function POST(req) {
   try {
+    const token = req.cookies.get("token")?.value;
+
+    if (!token) {
+      return new Response(JSON.stringify({ error: "Unauthorized: No token" }), {
+        status: 401,
+      });
+    }
+
+    try {
+      await jwtVerify(
+        token,
+        new TextEncoder().encode("nashjkahjhasjdjasjdahsjdhas")
+      );
+    } catch (err) {
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
+        status: 401,
+      });
+    }
     const { email, subject } = await req.json();
+
     // console.log("Sending to:", email);
+
     const mainSubject =
       subject || `Application for Full Stack Developer hiring`;
     const resumePath = path.join(
