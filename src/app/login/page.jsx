@@ -25,6 +25,7 @@ export default function LoginPage() {
       setTimeout(() => {
         router.push("/mail");
       }, 2000);
+      
     } else {
       setStatusMessage("Invalid credentials");
       setTimeout(() => {

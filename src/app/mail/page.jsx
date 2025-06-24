@@ -28,6 +28,7 @@ export default function Contact() {
     if (res.ok) {
       setStatus("Message sent successfully!");
       setForm({ email: "", subject: "" });
+      window.location.reload();
     } else {
       setStatus("Failed to send message.");
     }
