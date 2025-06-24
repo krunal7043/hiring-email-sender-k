@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiLogOut, FiArrowUpRight } from "react-icons/fi";
 import { CgAdd } from "react-icons/cg";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,8 @@ export default function Contact() {
   const [form, setForm] = useState({ email: "", subject: "" });
   const [status, setStatus] = useState("");
   const router = useRouter();
+  const [todayCount, setTodayCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -37,9 +39,46 @@ export default function Contact() {
     await fetch("/api/logout");
     window.location.href = "/login";
   };
+
   const log = async () => {
     router.push("/log");
   };
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const res = await fetch("/api/getLog");
+        const data = await res.json();
+
+        const today = new Date();
+        const todayStr = today.toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+
+        const formattedLogs = data.logs.map((log) => {
+          const datetime = new Date(log.sentAt);
+          return {
+            dateOnly: datetime.toLocaleDateString("en-IN", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            }),
+          };
+        });
+
+        setTodayCount(
+          formattedLogs.filter((log) => log.dateOnly === todayStr).length
+        );
+        setTotalCount(formattedLogs.length);
+      } catch (err) {
+        console.error("Failed to fetch counts", err);
+      }
+    };
+
+    fetchCounts();
+  }, []);
 
   return (
     <div
@@ -63,6 +102,11 @@ export default function Contact() {
           boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
         }}
       >
+        <div className="text-left mb-3">
+          <span className="text-success me-3">{todayCount}</span>
+          <span className="text-primary">{totalCount}</span>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="subject" className="form-label text-light">

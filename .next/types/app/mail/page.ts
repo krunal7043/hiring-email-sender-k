@@ -1,4 +1,4 @@
-// File: C:\Users\Admin\Downloads\hiring-email-sender-main\hiring-email-sender-main\src\app\mail\page.js
+// File: C:\Users\Admin\Desktop\email-sender-clone\hiring-email-sender-k\src\app\mail\page.jsx
 import * as entry from '../../../../src/app/mail/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

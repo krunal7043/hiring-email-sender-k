@@ -5,19 +5,32 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setStatusMessage("Logging in...");
+
     const res = await fetch("/api/login", {
       method: "POST",
       body: JSON.stringify({ username, password }),
     });
 
     if (res.ok) {
-      router.push("/mail");
+      setStatusMessage("Login successful! Redirecting...");
+      setTimeout(() => {
+        router.push("/mail");
+      }, 2000);
     } else {
-      alert("Invalid credentials");
+      setStatusMessage("Invalid credentials");
+      setTimeout(() => {
+        setLoading(false);
+        setStatusMessage("");
+      }, 2000);
     }
   };
 
@@ -61,8 +74,22 @@ export default function LoginPage() {
             />
           </div>
 
-          <button type="submit" className="btn btn-info w-100">
-            Login
+          <button
+            type="submit"
+            className="btn btn-info w-100 d-flex align-items-center justify-content-center gap-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div
+                  className="spinner-border spinner-border-sm text-light"
+                  role="status"
+                ></div>
+                <span>{statusMessage}</span>
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
       </div>
