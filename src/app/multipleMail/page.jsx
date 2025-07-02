@@ -27,6 +27,7 @@ export default function Contact() {
     if (res.ok) {
       setStatus("Emails sent successfully!");
       setEmailText("");
+      window.location.reload();
     } else {
       setStatus("Failed to send emails.");
     }
