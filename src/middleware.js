@@ -19,5 +19,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/mail", "/", "/log"],
+  matcher: ["/mail", "/", "/log", "/multiple","/multipleMail"],
 };

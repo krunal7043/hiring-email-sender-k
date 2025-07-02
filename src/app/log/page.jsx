@@ -9,6 +9,19 @@ export default function Log() {
   const [logs, setLogs] = useState([]);
   const [copiedIndex, setCopiedIndex] = useState(null);
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [TotalLogs, setTotalLogs] = useState(0);
+  const logsPerPage = 10;
+
+  const indexOfLastLog = currentPage * logsPerPage;
+  const indexOfFirstLog = indexOfLastLog - logsPerPage;
+  const currentLogs = logs.slice(indexOfFirstLog, indexOfLastLog);
+  const totalPages = Math.ceil(logs.length / logsPerPage);
+
+  console.log("indexOfLastLog", indexOfLastLog);
+  console.log("indexOfFirstLog", indexOfFirstLog);
+  console.log("currentLogs", currentLogs);
+  console.log("totalPages", totalPages);
 
   useEffect(() => {
     fetch("/api/getLog")
@@ -23,6 +36,7 @@ export default function Log() {
           }),
         }));
         setLogs(formattedLogs);
+        setTotalLogs(formattedLogs.length);
       })
       .catch((err) => console.error("Error fetching logs:", err));
   }, []);
@@ -39,8 +53,11 @@ export default function Log() {
     await fetch("/api/logout");
     window.location.href = "/login";
   };
-  const log = async () => {
+  const singleMail = async () => {
     router.push("/mail");
+  };
+  const multipleMail = async () => {
+    router.push("/multipleMail");
   };
 
   return (
@@ -52,18 +69,28 @@ export default function Log() {
       >
         <FiLogOut className="me-1" />
       </button>
+
       <button
-        onClick={log}
+        onClick={singleMail}
         className="btn btn-outline-none text-white position-absolute d-flex align-items-center gap-1"
-        style={{ bottom: "0px", right: "0px", zIndex: 10 }}
+        style={{ bottom: "0px", right: "30px", zIndex: 10, fontSize: "12px " }}
       >
-        <CgAdd />
+        1
+      </button>
+      <button
+        onClick={multipleMail}
+        className="btn btn-outline-none text-white position-absolute d-flex align-items-center gap-1"
+        style={{ bottom: "0px", right: "0px", zIndex: 10, fontSize: "12px" }}
+      >
+        2
       </button>
 
       <div className="container-fluid">
         <div className="card bg-secondary shadow-lg">
           <div className="card-body p-3">
-            <h5 className="card-title text-center text-info mb-3">📧 Logs</h5>
+            <h5 className="card-title text-center text-info mb-3">
+              📧 Logs {TotalLogs}
+            </h5>
 
             {logs.length === 0 ? (
               <p className="text-center text-light small">No logs available.</p>
@@ -82,9 +109,9 @@ export default function Log() {
                         </tr>
                       </thead>
                       <tbody>
-                        {logs.map((log, index) => (
+                        {currentLogs.map((log, index) => (
                           <tr key={index} className="align-middle">
-                            <td>{index + 1}</td>
+                            <td>{indexOfFirstLog + index + 1}</td>
                             <td>{log.subject}</td>
                             <td>
                               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
@@ -117,7 +144,7 @@ export default function Log() {
                   className="d-block d-md-none"
                   style={{ fontSize: "0.80rem" }}
                 >
-                  {logs.map((log, index) => (
+                  {currentLogs.map((log, index) => (
                     <div
                       key={index}
                       className="card bg-dark text-white mb-2 p-2 position-relative"
@@ -133,7 +160,6 @@ export default function Log() {
                       >
                         {copiedIndex === index ? "Copied ✅" : "Copy 📋"}
                       </button>
-
                       <div>
                         <strong>#{index + 1}</strong>
                       </div>
@@ -146,9 +172,47 @@ export default function Log() {
                       <div className="mt-1">
                         <strong>Date:</strong> {log.datetime}
                       </div>
+                      <div>
+                        <strong>#{indexOfFirstLog + index + 1}</strong>
+                      </div>
                     </div>
                   ))}
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="d-flex justify-content-center align-items-center mt-3 gap-2 flex-wrap">
+                    <button
+                      className="btn btn-sm btn-outline-light"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((prev) => prev - 1)}
+                    >
+                      ⬅️ Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <button
+                        key={i}
+                        className={`btn btn-sm ${
+                          currentPage === i + 1
+                            ? "btn-info"
+                            : "btn-outline-light"
+                        }`}
+                        onClick={() => setCurrentPage(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+
+                    <button
+                      className="btn btn-sm btn-outline-light"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                    >
+                      Next ➡️
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>

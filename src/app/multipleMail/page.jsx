@@ -1,39 +1,37 @@
 "use client";
+
 import { useState, useEffect } from "react";
-import { FiLogOut, FiArrowUpRight } from "react-icons/fi";
+import { FiLogOut } from "react-icons/fi";
 import { CgAdd } from "react-icons/cg";
 import { useRouter } from "next/navigation";
 
 export default function Contact() {
-  const [form, setForm] = useState({ email: "", subject: "" });
+  const [emailText, setEmailText] = useState("");
   const [status, setStatus] = useState("");
-  const router = useRouter();
   const [todayCount, setTodayCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("Sending...");
 
-    const res = await fetch("/api/sendMail", {
+    const res = await fetch("/api/multiple", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ email: emailText }),
     });
 
+    const data = await res.json();
+
     if (res.ok) {
-      setStatus("Email sent successfully!");
-      setForm({ email: "", subject: "" });
-      window.location.reload();
+      setStatus("Emails sent successfully!");
+      setEmailText("");
     } else {
-      setStatus("Failed to send Email.");
+      setStatus("Failed to send emails.");
     }
 
-    setTimeout(() => setStatus(""), 3000);
+    setTimeout(() => setStatus(""), 4000);
   };
 
   const logout = async () => {
@@ -41,11 +39,11 @@ export default function Contact() {
     window.location.href = "/login";
   };
 
-  const log = async () => {
+  const log = () => {
     router.push("/log");
   };
-  const multipleMail = async () => {
-    router.push("/multipleMail");
+  const singlemail = () => {
+    router.push("/mail");
   };
 
   useEffect(() => {
@@ -89,6 +87,7 @@ export default function Contact() {
       className="d-flex justify-content-center align-items-center min-vh-100 position-relative"
       style={{ backgroundColor: "#000" }}
     >
+      {/* Logout Button */}
       <button
         onClick={logout}
         className="btn btn-outline-none text-white position-absolute"
@@ -97,7 +96,7 @@ export default function Contact() {
         <FiLogOut className="me-1" />
       </button>
 
-      {/* Main Form Card */}
+      {/* Main Card */}
       <div
         className="p-4 rounded w-100 text-light"
         style={{
@@ -106,44 +105,31 @@ export default function Contact() {
           boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
         }}
       >
+        {/* Count Display */}
         <div className="text-left mb-3">
-          <span className="text-success me-3">{todayCount}</span>
-          <span className="text-primary">{totalCount}</span>
+          <span className="text-success me-3"> {todayCount}</span>
+          <span className="text-primary"> {totalCount}</span>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="subject" className="form-label text-light">
-              Subject
-            </label>
-            <input
-              type="text"
-              className="form-control bg-dark text-white border-secondary"
-              id="subject"
-              name="subject"
-              placeholder="Enter email subject"
-              value={form.subject}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-3">
             <label htmlFor="email" className="form-label text-light">
-              Email address
+              Email List
             </label>
-            <input
-              type="email"
-              className="form-control bg-dark text-white border-secondary"
+            <textarea
               id="email"
               name="email"
-              placeholder="Enter your email"
-              value={form.email}
-              onChange={handleChange}
+              className="form-control bg-dark text-white border-secondary"
+              placeholder="Enter emails separated by space or newlines"
+              rows={6}
+              value={emailText}
+              onChange={(e) => setEmailText(e.target.value)}
               required
             />
           </div>
 
           <button type="submit" className="btn btn-info w-100">
-            Send Message
+            Send Emails
           </button>
 
           {status && (
@@ -157,6 +143,8 @@ export default function Contact() {
           )}
         </form>
       </div>
+
+      {/* Log View Button */}
       <button
         onClick={log}
         className="btn btn-outline-none text-white position-absolute d-flex align-items-center gap-1"
@@ -165,12 +153,13 @@ export default function Contact() {
         +
       </button>
       <button
-        onClick={multipleMail}
+        onClick={singlemail}
         className="btn btn-outline-none text-white position-absolute d-flex align-items-center gap-1"
         style={{ bottom: "0px", right: "30px", zIndex: 10 }}
       >
         -
       </button>
+
     </div>
   );
 }
