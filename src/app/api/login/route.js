@@ -6,7 +6,7 @@
     export async function POST(req) {
     const { username, password } = await req.json();
 
-    if (username === "hiring" && password === "Krunal1020") {
+    if (username === "hiring" && password === "Krunal@1020") {
         const token = jwt.sign({ username }, "nashjkahjhasjdjasjdahsjdhas", {
         expiresIn: "1h",
         });
